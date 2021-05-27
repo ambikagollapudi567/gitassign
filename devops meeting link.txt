@@ -1,0 +1,54 @@
+https://tcs2.webex.com/tcs2/k2/j.php?MTID=t9083e16fe0152e3b4d23e8ec01dcabbf
+
+ sudo apt-add-repository ppa:ansible/ansible
+
+vi /etc/ssh/sshd_config  node
+
+passwd root
+
+Master:
+
+cd .ssh/
+ssh-keygen
+ssh-copy-id
+
+node :10.138.0.3
+
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: install maven
+    apt:
+      pkg: maven
+      state: present
+    notify:
+    - run update
+  - name: Install OpenJDK Java
+    become: yes
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items:
+     openjdk-8-jdk
+  - name: install nginx
+    apt:
+      pkg: nginx
+      state: present
+  - name: install docker
+    apt:
+      pkg: docker.io
+      state: present
+  - name: start docker service
+    service:
+      name: docker
+      state: started
+      enabled: true
+  - name: deploy wartest application
+    command: sudo docker run -it -d -p 8080:80 ambikagollapudi567/webapp
+  handlers:
+  - name: run update
+    apt:
+      update_cache: yes
+
+
